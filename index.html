@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🚀 Alchemy Body Werks — Action Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0e12;          /* page background */
+    --card:#10151b;        /* panels */
+    --ink:#ecf0f1;         /* primary text */
+    --ink-dim:#b9c2cf;     /* secondary */
+    --accent:#CBA135;      /* gold */
+    --muted:#1a212b;       /* borders */
+    --good:#22c55e;        /* progress */
+    --warn:#f59e0b;        /* timers */
+    --danger:#ef4444;      
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(160deg,#0b0e12,#0e1420 35%,#0b0e12 100%);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:32px auto;padding:0 20px}
+  header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+  h1{font-size:clamp(24px,4vw,34px);margin:0;font-weight:800;letter-spacing:.2px}
+  .sub{color:var(--ink-dim);font-size:14px}
+  .panel{background:var(--card);border:1px solid var(--muted);border-radius:16px;padding:16px}
+  .bar{height:12px;background:#0a0f15;border:1px solid var(--muted);border-radius:999px;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--good),#7dd3fc 60%,var(--accent));transition:width .25s ease}
+  .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+  .controls{display:flex;flex-wrap:wrap;gap:10px}
+  button,.chip,input[type="search"]{background:#0c1117;color:var(--ink);border:1px solid var(--muted);border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer}
+  button:hover,.chip:hover{border-color:var(--accent)}
+  .chip.active{background:var(--accent);color:#0a0a0a;border-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+  .col{grid-column:span 12}
+  @media(min-width:900px){.col{grid-column:span 6}}
+  .card{background:#0c1117;border:1px solid var(--muted);border-radius:16px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:16px;font-weight:800;letter-spacing:.3px}
+  .task{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px}
+  .task:hover{background:#0f151d}
+  .task input{transform:translateY(2px);}
+  .task label{line-height:1.35}
+  .badge{font-size:12px;color:#0a0a0a;background:var(--accent);padding:4px 10px;border-radius:999px;font-weight:800}
+  .tools{display:flex;gap:10px;align-items:center}
+  .ghost{opacity:.6}
+  .hr{height:1px;background:var(--muted);margin:12px 0}
+  .kbd{border:1px solid var(--muted);padding:2px 8px;border-radius:6px;background:#0b1016}
+  .small{font-size:12px;color:var(--ink-dim)}
+  .note{margin-top:10px;color:var(--ink-dim)}
+  .timer{display:flex;align-items:center;gap:8px}
+  .timer b{color:var(--warn)}
+  .link{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>🚀 Alchemy Action Board</h1>
+        <div class="sub">Tap a filter, start a 15‑min sprint, and watch the gold bar grow.</div>
+      </div>
+      <div class="tools">
+        <button id="printBtn" title="Print / Save as PDF">🖨️ Print</button>
+        <button id="focusBtn" title="Pull one random task">🎯 Focus</button>
+      </div>
+    </header>
+
+    <section class="panel" aria-label="progress">
+      <div class="row">
+        <div>
+          <div class="small">Progress</div>
+          <div class="bar" aria-hidden="true"><div class="fill" id="fill"></div></div>
+          <div class="note"><span id="countTxt">0 / 0 done</span></div>
+        </div>
+        <div class="timer">
+          <button id="sprintBtn">⏱️ 15‑min Sprint</button>
+          <span class="small">Time left: <b id="clock">00:00</b></span>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="controls">
+        <input id="q" type="search" placeholder="Search tasks (e.g., webp, candles, pricing)…" />
+        <span class="chip active" data-filter="all">All</span>
+        <span class="chip" data-filter="product">🌿 Product</span>
+        <span class="chip" data-filter="supplies">🛒 Supplies</span>
+        <span class="chip" data-filter="branding">📸 Branding</span>
+        <span class="chip" data-filter="digital">🌐 Digital</span>
+        <span class="chip" data-filter="pricing">💰 Pricing</span>
+        <span class="chip" data-filter="quick">⚡ Quick Wins</span>
+      </div>
+    </section>
+
+    <div class="grid" id="board">
+      <!-- Product Development -->
+      <div class="col">
+        <div class="card" data-group="product">
+          <h3>🌿 Product Development <span class="badge" id="badge-product">0/0</span></h3>
+          <div class="list">
+            
+            <div class="task" data-tags="chakra soap botanicals melt pour" data-quick="false">
+              <input id="t1" type="checkbox"><label for="t1">🔮 Create <b>chakra soaps</b> (melt &amp; pour, chakra colors, botanicals like rose petals/micas)</label>
+            </div>
+            <div class="task" data-tags="crystal soap" data-quick="false">
+              <input id="t2" type="checkbox"><label for="t2">💎 Create <b>crystal soaps</b></label>
+            </div>
+            <div class="task" data-tags="chakra element candles botanicals crystals" data-quick="false">
+              <input id="t3" type="checkbox"><label for="t3">🕯️ Create <b>chakra / element candles</b> (colors, botanicals, crystals)</label>
+            </div>
+            <div class="task" data-tags="sugar coffee scrub" data-quick="false">
+              <input id="t4" type="checkbox"><label for="t4">☕ Create <b>sugar &amp; coffee scrubs</b></label>
+            </div>
+            <div class="task" data-tags="bath bombs" data-quick="false">
+              <input id="t5" type="checkbox"><label for="t5">🛁 Create <b>bath bombs</b></label>
+            </div>
+            <div class="task" data-tags="laundry detergent" data-quick="false">
+              <input id="t6" type="checkbox"><label for="t6">👕 Create <b>laundry detergent</b></label>
+            </div>
+            <div class="task" data-tags="avocado soap" data-quick="false">
+              <input id="t7" type="checkbox"><label for="t7">🥑 Create <b>avocado soap</b></label>
+            </div>
+            <div class="task" data-tags="two tone swirl soap design" data-quick="false">
+              <input id="t8" type="checkbox"><label for="t8">🎨 Create <b>2‑tone &amp; swirl soaps</b></label>
+            </div>
+            <div class="task" data-tags="deodorant" data-quick="false">
+              <input id="t9" type="checkbox"><label for="t9">🌸 Create <b>deodorant</b></label>
+            </div>
+            <div class="task" data-tags="bracelet chakra" data-quick="false">
+              <input id="t10" type="checkbox"><label for="t10">📿 Create <b>chakra beaded bracelets</b></label>
+            </div>
+            <div class="task" data-tags="bracelet element" data-quick="false">
+              <input id="t11" type="checkbox"><label for="t11">🌍 Create <b>element beaded bracelets</b></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplies & Materials -->
+      <div class="col">
+        <div class="card" data-group="supplies">
+          <h3>🛒 Supplies & Materials <span class="badge" id="badge-supplies">0/0</span></h3>
+          <div class="list">
+            <div class="task" data-tags="botanicals rose lavender chamomile oatmeal" data-quick="false">
+              <input id="t12" type="checkbox"><label for="t12">🌹 Buy botanicals: <b>rose petals, lavender, chamomile, oatmeal</b></label>
+            </div>
+            <div class="task" data-tags="plants booth lifestyle photos" data-quick="false">
+              <input id="t13" type="checkbox"><label for="t13">🪴 Buy <b>real plants</b> (booth &amp; lifestyle photos)</label>
+            </div>
+            <div class="task" data-tags="lip balm containers" data-quick="true">
+              <input id="t14" type="checkbox"><label for="t14">💄 Buy <b>lip balm containers</b></label>
+            </div>
+            <div class="task" data-tags="packing tape" data-quick="true">
+              <input id="t15" type="checkbox"><label for="t15">📦 Buy <b>packing tape</b></label>
+            </div>
+            <div class="task" data-tags="sd card" data-quick="true">
+              <input id="t16" type="checkbox"><label for="t16">💾 Buy <b>SD card</b></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branding & Visuals -->
+      <div class="col">
+        <div class="card" data-group="branding">
+          <h3>📸 Branding & Visuals <span class="badge" id="badge-branding">0/0</span></h3>
+          <div class="list">
+            <div class="task" data-tags="lifestyle photos" data-quick="false">
+              <input id="t17" type="checkbox"><label for="t17">📷 Create <b>lifestyle photos</b></label>
+            </div>
+            <div class="task" data-tags="product photos live plants" data-quick="false">
+              <input id="t18" type="checkbox"><label for="t18">🌱 Take <b>product photos with live plants</b></label>
+            </div>
+            <div class="task" data-tags="faire application lifestyle" data-quick="false">
+              <input id="t19" type="checkbox"><label for="t19">✨ Apply for <b>Faire</b> (use lifestyle photos)</label>
+            </div>
+            <div class="task" data-tags="google drive cleanup" data-quick="true">
+              <input id="t20" type="checkbox"><label for="t20">🗂️ <b>Clean up Google Drive photos</b></label>
+            </div>
+            <div class="task" data-tags="google drive add people photos" data-quick="true">
+              <input id="t21" type="checkbox"><label for="t21">👥 <b>Add other people</b>'s photos in Google Drive</label>
+            </div>
+            <div class="task" data-tags="product cards scentbird insert" data-quick="false">
+              <input id="t22" type="checkbox"><label for="t22">🎴 Create <b>product cards</b> for each item shipped (Scentbird‑style)</label>
+            </div>
+            <div class="task" data-tags="find files IMG_0467 IMG_0312 IMG_0313 loofah image" data-quick="true">
+              <input id="t23" type="checkbox"><label for="t23">🔍 Find files: <b>massage candle IMG_0467</b>; <b>roll‑ons IMG_0312, IMG_0313</b>; create <b>loofah image</b></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Digital & Tech -->
+      <div class="col">
+        <div class="card" data-group="digital">
+          <h3>🌐 Digital & Tech <span class="badge" id="badge-digital">0/0</span></h3>
+          <div class="list">
+            <div class="task" data-tags="affirmation app" data-quick="false">
+              <input id="t24" type="checkbox"><label for="t24">📲 Create <b>affirmation app</b></label>
+            </div>
+            <div class="task" data-tags="website redesign layout buy now" data-quick="false">
+              <input id="t25" type="checkbox"><label for="t25">💻 <b>Redesign website</b> &amp; layout (homepage, Buy Now buttons)</label>
+            </div>
+            <div class="task" data-tags="audio files sound healing meditation" data-quick="false">
+              <input id="t26" type="checkbox"><label for="t26">🎵 Create <b>audio files</b> for sound healing &amp; meditation</label>
+            </div>
+            <div class="task" data-tags="convert images webp speed" data-quick="true">
+              <input id="t27" type="checkbox"><label for="t27">🖼️ Change all photos to <b>.webp</b> (faster load)</label>
+            </div>
+            <div class="task" data-tags="fragrance images webp" data-quick="true">
+              <input id="t28" type="checkbox"><label for="t28">🎨 Update <b>product fragrance</b> images to <b>.webp</b></label>
+            </div>
+            <div class="task" data-tags="community members reduce" data-quick="true">
+              <input id="t29" type="checkbox"><label for="t29">🧾 <b>Reduce number of community members</b></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Strategy -->
+      <div class="col">
+        <div class="card" data-group="pricing">
+          <h3>💰 Pricing & Strategy <span class="badge" id="badge-pricing">0/0</span></h3>
+          <div class="list">
+            <div class="task" data-tags="raise price packaging shipping" data-quick="false">
+              <input id="t30" type="checkbox"><label for="t30">📈 <b>Raise soap prices</b> (cover packaging &amp; shipping)</label>
+            </div>
+            <div class="task" data-tags="flat rate shipping" data-quick="false">
+              <input id="t31" type="checkbox"><label for="t31">📦 Consider <b>flat‑rate shipping</b></label>
+            </div>
+            <div class="task" data-tags="promo 3 for 27 deal" data-quick="false">
+              <input id="t32" type="checkbox"><label for="t32">💎 Launch <b>3 for $27</b> soap deal</label>
+            </div>
+            <div class="task" data-tags="premium story value justify price" data-quick="false">
+              <input id="t33" type="checkbox"><label for="t33">💬 Explain <b>why our soaps are premium</b> (site messaging)</label>
+            </div>
+            <div class="task" data-tags="usage rate compare test" data-quick="false">
+              <input id="t34" type="checkbox"><label for="t34">🔬 Track <b>usage rate</b>: washes per bar vs. other brands</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="note" style="margin:24px 0 80px">
+      Tip: Press <span class="kbd">/</span> to focus search • Your progress auto‑saves in this browser • <a class="link" href="#" id="clearAll">Reset all</a>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  const qs = (s, el=document)=>el.querySelector(s);
+  const qsa = (s, el=document)=>[...el.querySelectorAll(s)];
+  const fill = qs('#fill');
+  const countTxt = qs('#countTxt');
+  const chips = qsa('.chip');
+  const search = qs('#q');
+  const groups = ['product','supplies','branding','digital','pricing'];
+  const badges = Object.fromEntries(groups.map(g=>[g, qs('#badge-'+g)]));
+  const KEY = 'abw_action_board_v1';
+
+  // Load state
+  let state = JSON.parse(localStorage.getItem(KEY) || '{}');
+
+  // Bind tasks
+  const tasks = qsa('.task');
+  tasks.forEach((t, i)=>{
+    const cb = t.querySelector('input[type="checkbox"]');
+    const id = cb.id || ('auto'+i);
+    cb.id = id;
+    if(state[id]) cb.checked = true;
+    cb.addEventListener('change', ()=>{
+      state[id] = cb.checked;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      render();
+    });
+  });
+
+  function render(){
+    // Progress
+    const total = tasks.length;
+    const done = tasks.filter(t=>t.querySelector('input').checked).length;
+    const pct = total? Math.round((done/total)*100) : 0;
+    fill.style.width = pct+'%';
+    countTxt.textContent = `${done} / ${total} done (${pct}%)`;
+
+    // Badges per group
+    groups.forEach(g=>{
+      const inGroup = qsa(`.card[data-group="${g}"] .task`);
+      const finished = inGroup.filter(t=>t.querySelector('input').checked).length;
+      badges[g].textContent = `${finished}/${inGroup.length}`;
+    });
+
+    // Filtering by search and chips
+    const activeChip = qs('.chip.active');
+    const filter = activeChip?.dataset.filter || 'all';
+    const term = search.value.trim().toLowerCase();
+
+    tasks.forEach(t=>{
+      const card = t.closest('.card');
+      const inGroup = card.dataset.group;
+      const text = t.textContent.toLowerCase();
+      const tags = (t.dataset.tags||'').toLowerCase();
+      const isQuick = (t.dataset.quick === 'true');
+
+      let ok = true;
+      if(filter !== 'all'){
+        if(filter === 'quick') ok = isQuick;
+        else ok = (inGroup === filter);
+      }
+      if(ok && term) ok = text.includes(term) || tags.includes(term);
+
+      t.style.display = ok? 'flex' : 'none';
+    });
+  }
+
+  // Chips
+  chips.forEach(ch=>{
+    ch.addEventListener('click', ()=>{
+      chips.forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      render();
+    });
+  });
+
+  // Search
+  search.addEventListener('input', render);
+  window.addEventListener('keydown', (e)=>{ if(e.key === '/'){ e.preventDefault(); search.focus(); }});
+
+  // Print
+  qs('#printBtn').addEventListener('click', ()=>window.print());
+
+  // Focus: pick a random visible unchecked task
+  qs('#focusBtn').addEventListener('click', ()=>{
+    const visible = tasks.filter(t=>t.style.display !== 'none');
+    const pool = visible.filter(t=>!t.querySelector('input').checked);
+    if(pool.length){
+      const pick = pool[Math.floor(Math.random()*pool.length)];
+      pick.scrollIntoView({behavior:'smooth', block:'center'});
+      pick.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:800});
+    }
+  });
+
+  // Sprint timer (15 minutes)
+  let timer = null, remaining = 0;
+  const clock = qs('#clock');
+  function format(s){
+    const m = String(Math.floor(s/60)).padStart(2,'0');
+    const n = String(s%60).padStart(2,'0');
+    return `${m}:${n}`;
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; } }
+  function start(seconds){
+    remaining = seconds; clock.textContent = format(remaining);
+    stop();
+    timer = setInterval(()=>{
+      remaining--; clock.textContent = format(Math.max(remaining,0));
+      if(remaining<=0){ stop();
+        // Subtle completion flash
+        document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.2)'},{filter:'brightness(1)'}],{duration:900});
+      }
+    },1000);
+  }
+  qs('#sprintBtn').addEventListener('click', ()=> start(15*60));
+
+  // Reset
+  qs('#clearAll').addEventListener('click', (e)=>{
+    e.preventDefault();
+    if(confirm('Reset all progress?')){
+      localStorage.removeItem(KEY);
+      state = {};
+      qsa('.task input').forEach(cb=>cb.checked=false);
+      render();
+    }
+  });
+
+  // First paint
+  render();
+})();
+</script>
+</body>
+</html>
